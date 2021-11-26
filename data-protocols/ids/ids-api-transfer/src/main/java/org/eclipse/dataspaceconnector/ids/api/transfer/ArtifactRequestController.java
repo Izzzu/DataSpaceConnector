@@ -52,6 +52,7 @@ import static org.eclipse.dataspaceconnector.ids.spi.Protocols.IDS_REST;
 public class ArtifactRequestController {
     private static final String TOKEN_KEY = "dataspaceconnector-destination-token";
     private static final String DESTINATION_KEY = "dataspaceconnector-data-destination";
+    private static final String PROPERTIES_KEY = "dataspaceconnector-properties";
 
     private final DapsService dapsService;
     private final AssetIndex assetIndex;
@@ -120,7 +121,13 @@ public class ArtifactRequestController {
 
         var dataDestination = DataAddress.Builder.newInstance().type(type).properties(properties).keyName(secretName).build();
 
-        var dataRequest = DataRequest.Builder.newInstance().id(randomUUID().toString()).assetId(asset.getId()).dataDestination(dataDestination).protocol(IDS_REST).build();
+        var dataRequest = DataRequest.Builder.newInstance()
+                .id(randomUUID().toString())
+                .assetId(asset.getId())
+                .dataDestination(dataDestination)
+                .protocol(IDS_REST)
+                .properties((Map<String, String>) message.getProperties().get(ArtifactRequestController.PROPERTIES_KEY))
+                .build();
 
         var destinationToken = (String) message.getProperties().get(ArtifactRequestController.TOKEN_KEY);
 
