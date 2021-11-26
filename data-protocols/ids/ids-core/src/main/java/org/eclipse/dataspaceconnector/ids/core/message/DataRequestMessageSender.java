@@ -93,6 +93,8 @@ public class DataRequestMessageSender implements IdsMessageSender<DataRequest, V
                 .build();
         artifactMessage.setProperty("dataspaceconnector-data-destination", dataRequest.getDataDestination());
 
+        artifactMessage.setProperty("dataspaceconnector-properties", dataRequest.getProperties());
+
         var processId = context.getProcessId();
 
         var serializedToken = vault.resolveSecret(dataRequest.getDataDestination().getKeyName());
