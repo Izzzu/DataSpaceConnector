@@ -48,7 +48,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
 
     private boolean managedResources = true;
 
-    private Map<String, String> properties = new HashMap();
+    private Map<String, String> additionalProperties = new HashMap<>();
 
     private TransferType transferType;
 
@@ -128,8 +128,8 @@ public class DataRequest implements RemoteMessage, Polymorphic {
     /**
      * Custom properties that are passed to the provider connector.
      */
-    public Map<String, String> getProperties() {
-        return properties;
+    public Map<String, String> getAdditionalProperties() {
+        return Map.copyOf(additionalProperties);
     }
 
     public boolean isManagedResources() {
@@ -148,7 +148,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
                 .dataAddress(dataDestination)
                 .transferType(transferType)
                 .managedResources(managedResources)
-                .properties(properties)
+                .additionalProperties(additionalProperties)
                 .build();
     }
 
@@ -228,8 +228,8 @@ public class DataRequest implements RemoteMessage, Polymorphic {
             return this;
         }
 
-        public Builder properties(Map<String, String> value) {
-            request.properties = value;
+        public Builder additionalProperties(Map<String, String> value) {
+            request.additionalProperties = value == null ? null : Map.copyOf(value);
             return this;
         }
 
