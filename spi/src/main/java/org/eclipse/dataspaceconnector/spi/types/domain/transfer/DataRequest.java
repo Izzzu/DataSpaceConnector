@@ -129,7 +129,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
      * Custom properties that are passed to the provider connector.
      */
     public Map<String, String> getAdditionalProperties() {
-        return Map.copyOf(additionalProperties);
+        return additionalProperties;
     }
 
     public boolean isManagedResources() {
