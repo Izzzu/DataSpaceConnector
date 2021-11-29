@@ -113,7 +113,8 @@ public class ArtifactRequestController {
 
 
         // TODO this needs to be deserialized from the artifact request message
-        var destinationMap = (Map<String, Object>) message.getProperties().get(ArtifactRequestController.DESTINATION_KEY);
+        Map<String, Object> messageProperties = message.getProperties();
+        var destinationMap = (Map<String, Object>) messageProperties.get(ArtifactRequestController.DESTINATION_KEY);
         var type = (String) destinationMap.get("type");
 
         Map<String, String> properties = (Map<String, String>) destinationMap.get("properties");
@@ -126,10 +127,10 @@ public class ArtifactRequestController {
                 .assetId(asset.getId())
                 .dataDestination(dataDestination)
                 .protocol(IDS_REST)
-                .properties((Map<String, String>) message.getProperties().get(ArtifactRequestController.PROPERTIES_KEY))
+                .additionalProperties((Map<String, String>) messageProperties.get(ArtifactRequestController.PROPERTIES_KEY))
                 .build();
 
-        var destinationToken = (String) message.getProperties().get(ArtifactRequestController.TOKEN_KEY);
+        var destinationToken = (String) messageProperties.get(ArtifactRequestController.TOKEN_KEY);
 
         if (destinationToken != null) {
             vault.storeSecret(secretName, destinationToken);
