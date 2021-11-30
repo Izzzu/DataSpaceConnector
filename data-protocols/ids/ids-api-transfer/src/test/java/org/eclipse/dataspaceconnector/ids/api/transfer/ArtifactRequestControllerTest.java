@@ -61,7 +61,7 @@ public class ArtifactRequestControllerTest {
     private TransferProcessManager manager;
 
     private final String consumerConnectorAddress = faker.internet().url();
-    private final String artifactMessageId = faker.lorem().characters();
+    private final String artifactMessageId = faker.internet().uuid();
     private final String assetId = faker.internet().url();
 
 
