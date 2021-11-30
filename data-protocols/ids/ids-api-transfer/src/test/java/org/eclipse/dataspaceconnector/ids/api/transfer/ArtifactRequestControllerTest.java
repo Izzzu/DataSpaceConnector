@@ -41,7 +41,13 @@ import java.net.URI;
 import java.util.HashMap;
 import java.util.Map;
 
-import static org.easymock.EasyMock.*;
+import static org.easymock.EasyMock.anyObject;
+import static org.easymock.EasyMock.anyString;
+import static org.easymock.EasyMock.expect;
+import static org.easymock.EasyMock.mock;
+import static org.easymock.EasyMock.niceMock;
+import static org.easymock.EasyMock.replay;
+import static org.easymock.EasyMock.same;
 import static org.easymock.EasyMock.verify;
 import static org.eclipse.dataspaceconnector.ids.spi.Protocols.IDS_REST;
 
@@ -134,13 +140,13 @@ public class ArtifactRequestControllerTest {
         EasyMock.reportMatcher(new IArgumentMatcher() {
             @Override
             public boolean matches(Object argument) {
-                return argument instanceof DataRequest
-                        && dataRequest.getDataDestination().getKeyName().equals(((DataRequest) argument).getDataDestination().getKeyName())
-                        && dataRequest.getDataDestination().getType().equals(((DataRequest) argument).getDataDestination().getType())
-                        && dataRequest.getDataDestination().getProperties().equals(((DataRequest) argument).getDataDestination().getProperties())
-                        && dataRequest.getAssetId().equals(((DataRequest) argument).getAssetId())
-                        && dataRequest.getAdditionalProperties().equals(((DataRequest) argument).getAdditionalProperties())
-                        && dataRequest.getProtocol().equals(((DataRequest) argument).getProtocol());
+                return argument instanceof DataRequest &&
+                        dataRequest.getDataDestination().getKeyName().equals(((DataRequest) argument).getDataDestination().getKeyName()) &&
+                        dataRequest.getDataDestination().getType().equals(((DataRequest) argument).getDataDestination().getType()) &&
+                        dataRequest.getDataDestination().getProperties().equals(((DataRequest) argument).getDataDestination().getProperties()) &&
+                        dataRequest.getAssetId().equals(((DataRequest) argument).getAssetId()) &&
+                        dataRequest.getAdditionalProperties().equals(((DataRequest) argument).getAdditionalProperties()) &&
+                        dataRequest.getProtocol().equals(((DataRequest) argument).getProtocol());
             }
 
             @Override
