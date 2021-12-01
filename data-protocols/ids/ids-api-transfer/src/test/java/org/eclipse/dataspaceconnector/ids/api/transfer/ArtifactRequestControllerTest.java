@@ -17,8 +17,8 @@ import com.github.javafaker.Faker;
 import de.fraunhofer.iais.eis.ArtifactRequestMessage;
 import de.fraunhofer.iais.eis.ArtifactRequestMessageBuilder;
 import de.fraunhofer.iais.eis.DynamicAttributeTokenBuilder;
-import org.easymock.EasyMock;
-import org.easymock.IArgumentMatcher;
+import static org.assertj.core.api.Assertions.assertThat;
+import org.easymock.Capture;
 import org.eclipse.dataspaceconnector.ids.spi.daps.DapsService;
 import org.eclipse.dataspaceconnector.ids.spi.policy.IdsPolicyService;
 import org.eclipse.dataspaceconnector.policy.engine.PolicyEvaluationResult;
@@ -31,24 +31,15 @@ import org.eclipse.dataspaceconnector.spi.security.Vault;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferInitiateResponse;
 import org.eclipse.dataspaceconnector.spi.transfer.TransferProcessManager;
 import org.eclipse.dataspaceconnector.spi.types.domain.asset.Asset;
-import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataAddress;
 import org.eclipse.dataspaceconnector.spi.types.domain.transfer.DataRequest;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.net.URI;
-import java.util.HashMap;
 import java.util.Map;
 
-import static org.easymock.EasyMock.anyObject;
-import static org.easymock.EasyMock.anyString;
-import static org.easymock.EasyMock.expect;
-import static org.easymock.EasyMock.mock;
-import static org.easymock.EasyMock.niceMock;
-import static org.easymock.EasyMock.replay;
-import static org.easymock.EasyMock.same;
-import static org.easymock.EasyMock.verify;
+import static org.easymock.EasyMock.*;
 import static org.eclipse.dataspaceconnector.ids.spi.Protocols.IDS_REST;
 
 public class ArtifactRequestControllerTest {
@@ -98,29 +89,30 @@ public class ArtifactRequestControllerTest {
         var additionalProperties = Map.of(faker.lorem().word(), faker.lorem().word(), faker.lorem().word(), faker.lorem().word());
         var type = faker.lorem().word();
         var secretName = faker.lorem().word();
-        ArtifactRequestMessage artifactRequestMessage = createArtifactRequestMessage(additionalProperties, type, secretName);
-
-        var expectedDataRequest = DataRequest.Builder.newInstance()
-                .assetId(assetId)
-                .dataDestination(DataAddress.Builder.newInstance().type(type).keyName(secretName).build())
-                .protocol(IDS_REST)
-                .additionalProperties(additionalProperties)
-                .build();
-
-        expect(manager.initiateProviderRequest(dataRequestMatcher(expectedDataRequest))).andReturn(TransferInitiateResponse.Builder.newInstance().build()).times(1);
+        var destinationMap = Map.of("type", type, "keyName", secretName, "properties", Map.of());
+        ArtifactRequestMessage artifactRequestMessage = createArtifactRequestMessage(additionalProperties, destinationMap);
 
         // record
+        Capture<DataRequest> requestCapture = newCapture();
+        expect(manager.initiateProviderRequest(capture(requestCapture))).andReturn(TransferInitiateResponse.Builder.newInstance().build()).times(1);
         replay(manager);
 
         // invoke
         controller.request(artifactRequestMessage);
 
         // verify
+        DataRequest dataRequest = requestCapture.getValue();
+        assertThat(dataRequest.getAssetId()).isEqualTo(assetId);
+        assertThat(dataRequest.getAdditionalProperties()).isEqualTo(additionalProperties);
+        assertThat(dataRequest.getProtocol()).isEqualTo(IDS_REST);
+        assertThat(dataRequest.getDataDestination().getKeyName()).isEqualTo(secretName);
+        assertThat(dataRequest.getDataDestination().getType()).isEqualTo(type);
+        assertThat(dataRequest.getDataDestination().getProperties()).isEqualTo(Map.of("type", type, "keyName", secretName));
         verify(manager);
     }
 
     @NotNull
-    private ArtifactRequestMessage createArtifactRequestMessage(Map<String, String> additionalProperties, String type, String secretName) {
+    private ArtifactRequestMessage createArtifactRequestMessage(Map<String, String> additionalProperties, Map<String, Object> destinationMap) {
         ArtifactRequestMessage artifactRequestMessage = new ArtifactRequestMessageBuilder(URI.create(artifactMessageId))
                 ._securityToken_(new DynamicAttributeTokenBuilder()
                         ._tokenValue_(faker.lorem().word())
@@ -129,31 +121,10 @@ public class ArtifactRequestControllerTest {
                 ._issuerConnector_(URI.create(consumerConnectorAddress))
                 .build();
 
-        var destinationMap = Map.of("type", type, "keyName", secretName, "properties", new HashMap<>());
         artifactRequestMessage.setProperty(DESTINATION_KEY, destinationMap);
 
         artifactRequestMessage.setProperty(PROPERTIES_KEY, additionalProperties);
         return artifactRequestMessage;
     }
 
-    public static DataRequest dataRequestMatcher(DataRequest dataRequest) {
-        EasyMock.reportMatcher(new IArgumentMatcher() {
-            @Override
-            public boolean matches(Object argument) {
-                return argument instanceof DataRequest &&
-                        dataRequest.getDataDestination().getKeyName().equals(((DataRequest) argument).getDataDestination().getKeyName()) &&
-                        dataRequest.getDataDestination().getType().equals(((DataRequest) argument).getDataDestination().getType()) &&
-                        dataRequest.getDataDestination().getProperties().equals(((DataRequest) argument).getDataDestination().getProperties()) &&
-                        dataRequest.getAssetId().equals(((DataRequest) argument).getAssetId()) &&
-                        dataRequest.getAdditionalProperties().equals(((DataRequest) argument).getAdditionalProperties()) &&
-                        dataRequest.getProtocol().equals(((DataRequest) argument).getProtocol());
-            }
-
-            @Override
-            public void appendTo(StringBuffer buffer) {
-                buffer.append("DataRequests don't match.");
-            }
-        });
-        return null;
-    }
 }
