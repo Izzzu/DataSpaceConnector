@@ -29,7 +29,7 @@ dependencies {
 
     implementation("jakarta.ws.rs:jakarta.ws.rs-api:${rsApi}")
 
-    testImplementation("org.glassfish.jersey.media:jersey-media-multipart:${jerseyVersion}")
+    testImplementation("org.glassfish.jersey.core:jersey-common:${jerseyVersion}")
     testImplementation("com.github.javafaker:javafaker:1.0.2")
 
 }

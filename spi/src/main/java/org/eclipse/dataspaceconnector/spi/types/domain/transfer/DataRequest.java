@@ -48,7 +48,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
 
     private boolean managedResources = true;
 
-    private Map<String, String> additionalProperties = new HashMap<>();
+    private Map<String, String> additionalProperties = Map.of();
 
     private TransferType transferType;
 
