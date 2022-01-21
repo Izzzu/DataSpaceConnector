@@ -21,6 +21,9 @@ import com.fasterxml.jackson.databind.annotation.JsonPOJOBuilder;
 import org.eclipse.dataspaceconnector.spi.types.domain.Polymorphic;
 import org.eclipse.dataspaceconnector.spi.types.domain.message.RemoteMessage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * Polymorphic data request.
  */
@@ -44,6 +47,8 @@ public class DataRequest implements RemoteMessage, Polymorphic {
     private DataAddress dataDestination;
 
     private boolean managedResources = true;
+
+    private Map<String, String> additionalProperties = new HashMap<>();
 
     private TransferType transferType;
 
@@ -120,6 +125,13 @@ public class DataRequest implements RemoteMessage, Polymorphic {
         return dataDestination;
     }
 
+    /**
+     * Custom properties that are passed to the provider connector.
+     */
+    public Map<String, String> getAdditionalProperties() {
+        return additionalProperties;
+    }
+
     public boolean isManagedResources() {
         return managedResources;
     }
@@ -136,6 +148,7 @@ public class DataRequest implements RemoteMessage, Polymorphic {
                 .dataAddress(dataDestination)
                 .transferType(transferType)
                 .managedResources(managedResources)
+                .additionalProperties(additionalProperties)
                 .build();
     }
 
@@ -212,6 +225,11 @@ public class DataRequest implements RemoteMessage, Polymorphic {
 
         public Builder managedResources(boolean value) {
             request.managedResources = value;
+            return this;
+        }
+
+        public Builder additionalProperties(Map<String, String> value) {
+            request.additionalProperties = value == null ? null : Map.copyOf(value);
             return this;
         }
 

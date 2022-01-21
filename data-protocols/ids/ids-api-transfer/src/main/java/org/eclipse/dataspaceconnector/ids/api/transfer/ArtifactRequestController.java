@@ -52,6 +52,7 @@ import static org.eclipse.dataspaceconnector.ids.spi.Protocols.IDS_REST;
 public class ArtifactRequestController {
     private static final String TOKEN_KEY = "dataspaceconnector-destination-token";
     private static final String DESTINATION_KEY = "dataspaceconnector-data-destination";
+    private static final String PROPERTIES_KEY = "dataspaceconnector-properties";
 
     private final DapsService dapsService;
     private final AssetIndex assetIndex;
@@ -112,7 +113,8 @@ public class ArtifactRequestController {
 
 
         // TODO this needs to be deserialized from the artifact request message
-        var destinationMap = (Map<String, Object>) message.getProperties().get(ArtifactRequestController.DESTINATION_KEY);
+        Map<String, Object> messageProperties = message.getProperties();
+        var destinationMap = (Map<String, Object>) messageProperties.get(ArtifactRequestController.DESTINATION_KEY);
         var type = (String) destinationMap.get("type");
 
         Map<String, String> properties = (Map<String, String>) destinationMap.get("properties");
@@ -120,9 +122,15 @@ public class ArtifactRequestController {
 
         var dataDestination = DataAddress.Builder.newInstance().type(type).properties(properties).keyName(secretName).build();
 
-        var dataRequest = DataRequest.Builder.newInstance().id(randomUUID().toString()).assetId(asset.getId()).dataDestination(dataDestination).protocol(IDS_REST).build();
+        var dataRequest = DataRequest.Builder.newInstance()
+                .id(randomUUID().toString())
+                .assetId(asset.getId())
+                .dataDestination(dataDestination)
+                .protocol(IDS_REST)
+                .additionalProperties((Map<String, String>) messageProperties.get(ArtifactRequestController.PROPERTIES_KEY))
+                .build();
 
-        var destinationToken = (String) message.getProperties().get(ArtifactRequestController.TOKEN_KEY);
+        var destinationToken = (String) messageProperties.get(ArtifactRequestController.TOKEN_KEY);
 
         if (destinationToken != null) {
             vault.storeSecret(secretName, destinationToken);
