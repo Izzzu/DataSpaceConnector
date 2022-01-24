@@ -31,6 +31,15 @@ jobs:
         # checkstyle would also run as part of the `check` task
         run: ./gradlew clean check jacocoTestReport -x checkstyleMain -x checkstyleTest
 
+      - name: Run codacy-coverage-reporter
+          uses: codacy/codacy-coverage-reporter-action@v1
+          with:
+            api-token: ${{ secrets.CODACY_API_TOKEN }}
+            # or
+            # api-token: ${{ secrets.CODACY_API_TOKEN }}
+            coverage-reports: jacocoTestReport.xml
+
+
   Sanity-Check:
     runs-on: ubuntu-latest
     steps:
