@@ -117,6 +117,7 @@ allprojects {
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
     }
+
     tasks.withType<Checkstyle> {
         reports {
             // lets not generate any reports because that is done from within the Github Actions workflow
@@ -135,7 +136,8 @@ allprojects {
     tasks.jacocoTestReport {
         reports {
             xml.required.set(true)
-            html.required.set(true)
+            csv.required.set(false)
+            html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
         }
     }
 }
