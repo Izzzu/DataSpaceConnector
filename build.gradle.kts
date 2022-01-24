@@ -16,17 +16,22 @@ plugins {
     `java-library`
     `maven-publish`
     checkstyle
+    jacoco
 }
 
 repositories {
     mavenCentral()
 }
 
+
 val jetBrainsAnnotationsVersion: String by project
 val jacksonVersion: String by project
 val javaVersion: String by project
-
 val jupiterVersion: String by project
+val mockitoVersion: String by project
+val rsApi: String by project
+val swaggerJaxrs2Version: String by project
+
 val groupId: String = "org.eclipse.dataspaceconnector"
 var edcVersion: String = "0.0.1-SNAPSHOT"
 
@@ -45,9 +50,6 @@ subprojects {
         maven {
             url = uri("https://maven.iais.fraunhofer.de/artifactory/eis-ids-public/")
         }
-        maven {
-            url = uri("https://repository.mulesoft.org/nexus/content/repositories/public/") //used for the multihash lib
-        }
     }
 
     tasks.register<DependencyReportTask>("allDependencies") {}
@@ -57,6 +59,7 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+    apply(plugin = "jacoco")
 
     checkstyle {
         toolVersion = "9.0"
@@ -107,13 +110,20 @@ allprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
+
     tasks.withType<Test> {
         testLogging {
             events("failed")
             showStackTraces = true
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
+        finalizedBy("jacocoTestReport")
+        doLast {
+            println("View code coverage at:")
+            println("file://$buildDir/reports/jacoco/test/html/index.html")
+        }
     }
+
     tasks.withType<Checkstyle> {
         reports {
             // lets not generate any reports because that is done from within the Github Actions workflow
@@ -126,6 +136,14 @@ allprojects {
         metaInf {
             from("${rootProject.projectDir.path}/LICENSE")
             from("${rootProject.projectDir.path}/NOTICE.md")
+        }
+    }
+
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
+            csv.required.set(false)
+            html.required.set(true)
         }
     }
 }
