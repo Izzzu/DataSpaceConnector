@@ -116,6 +116,11 @@ allprojects {
             showStackTraces = true
             exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
         }
+        finalizedBy("jacocoTestReport")
+        doLast {
+            println("View code coverage at:")
+            println("file://$buildDir/reports/jacoco/test/html/index.html")
+        }
     }
 
     tasks.withType<Checkstyle> {
@@ -137,7 +142,7 @@ allprojects {
         reports {
             xml.required.set(true)
             csv.required.set(false)
-            html.outputLocation.set(layout.buildDirectory.dir("jacocoHtml"))
+            html.required.set(true)
         }
     }
 }
