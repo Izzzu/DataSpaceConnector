@@ -110,6 +110,7 @@ allprojects {
     tasks.withType<Test> {
         useJUnitPlatform()
     }
+
     tasks.withType<Test> {
         testLogging {
             events("failed")
