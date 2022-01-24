@@ -31,13 +31,18 @@ jobs:
         # checkstyle would also run as part of the `check` task
         run: ./gradlew clean check jacocoTestReport -x checkstyleMain -x checkstyleTest
 
+      - name: Gradle Jacoco Reports paths
+        run: echo "::set-output name=paths::$(find **/jacoco*.xml | tr '\n' ',')"
+        id: reports-paths-vars
+
+
       - name: Run codacy-coverage-reporter
         uses: codacy/codacy-coverage-reporter-action@v1
         with:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
             # or
             # api-token: ${{ secrets.CODACY_API_TOKEN }}
-          coverage-reports: bash <(curl -Ls https://coverage.codacy.com/get.sh) report -l Java $(find **/jacoco*.xml -printf '-r %p ')
+          coverage-reports: ${{ steps.reports-paths-vars.outputs.paths }}
 
 
   Sanity-Check:
