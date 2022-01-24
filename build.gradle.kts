@@ -16,17 +16,23 @@ plugins {
     `java-library`
     `maven-publish`
     checkstyle
+    id("com.rameshkp.openapi-merger-gradle-plugin") version "1.0.4"
+    jacoco
 }
 
 repositories {
     mavenCentral()
 }
 
+
 val jetBrainsAnnotationsVersion: String by project
 val jacksonVersion: String by project
 val javaVersion: String by project
-
 val jupiterVersion: String by project
+val mockitoVersion: String by project
+val rsApi: String by project
+val swaggerJaxrs2Version: String by project
+
 val groupId: String = "org.eclipse.dataspaceconnector"
 var edcVersion: String = "0.0.1-SNAPSHOT"
 
@@ -45,9 +51,6 @@ subprojects {
         maven {
             url = uri("https://maven.iais.fraunhofer.de/artifactory/eis-ids-public/")
         }
-        maven {
-            url = uri("https://repository.mulesoft.org/nexus/content/repositories/public/") //used for the multihash lib
-        }
     }
 
     tasks.register<DependencyReportTask>("allDependencies") {}
@@ -57,6 +60,7 @@ allprojects {
     apply(plugin = "maven-publish")
     apply(plugin = "checkstyle")
     apply(plugin = "java")
+    apply(plugin = "jacoco")
 
     checkstyle {
         toolVersion = "9.0"
@@ -126,6 +130,12 @@ allprojects {
         metaInf {
             from("${rootProject.projectDir.path}/LICENSE")
             from("${rootProject.projectDir.path}/NOTICE.md")
+        }
+    }
+
+    tasks.jacocoTestReport {
+        reports {
+            xml.required.set(true)
         }
     }
 }
