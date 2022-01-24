@@ -42,7 +42,7 @@ jobs:
           project-token: ${{ secrets.CODACY_PROJECT_TOKEN }}
             # or
             # api-token: ${{ secrets.CODACY_API_TOKEN }}
-          coverage-reports: ${{ steps.reports-paths-vars.outputs.paths }}
+          coverage-reports: common/util/build/reports/jacoco/test/jacocoTestReport.xml
 
 
   Sanity-Check:
